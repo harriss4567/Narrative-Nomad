@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Narrative-Nomad</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <!-- Google Fonts for thematic styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Merriweather:wght@400;700&family=Parisienne&family=MedievalSharp&family=Creepster&family=Creepy&family=Permanent+Marker&family=Orbitron&family=Share+Tech+Mono&family=Tangerine:wght@400;700&family=Old+Standard+TT&family=Open+Sans&family=Special+Elite&family=Cormorant+Garamond:wght@400;700&family=Pacifico&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
   <header>
@@ -15,26 +20,43 @@
 
   <main>
     <form id="tripForm">
-      <label for="destination" class="muted">Your Origin</label>
+      <label for="origin" class="muted">Your Origin</label>
       <input id="origin" type="text" placeholder="Origin (e.g., Toronto)" required />
+
       <label for="destination" class="muted">Your Destination</label>
       <input id="destination" type="text" placeholder="Destination (e.g., Kyoto)" required />
-      <label class="muted">Trip Duration</label>
-      <input id="duration" type="number" placeholder="Duration (days)" min="1" required />
-      <label class="muted">Budget</label>
-      <input id="budget" type="number" placeholder="Budget (USD)" min="1" required />
+
+      <div class="inline-fields">
+        <div>
+          <label class="muted">Trip Duration (days)</label>
+          <input id="duration" type="number" placeholder="Duration (days)" min="1" required />
+        </div>
+        <div>
+          <label class="muted">Budget (USD)</label>
+          <input id="budget" type="number" placeholder="Budget (USD)" min="1" required />
+        </div>
+      </div>
+
       <label class="muted">Choose Your Story's Theme</label>
-      <select id="style" multiple="multiple">
-        <option class="muted" value="romantic">Romantic 💖</option>
-        <option class="muted" value="fantasy">Fantasy ✨</option>
-        <option class="muted" value="spooky">Spooky 💀</option>
-        <option class="muted" value="adventure">Adventure 🗺️</option>
+      <select id="style" required>
+        <option value="" disabled selected>Select a theme...</option>
+        <option value="romantic">Romantic 💖</option>
+        <option value="fantasy">Fantasy ✨</option>
+        <option value="spooky">Spooky 💀</option>
+        <option value="adventure">Adventure 🗺️</option>
+        <option value="scifi">Sci-Fi 🚀</option>
+        <option value="historical">Historical 📜</option>
+        <option value="mystery">Mystery 🔎</option>
+        <option value="tropical">Tropical 🌴</option>
       </select>
+
       <label class="muted">Interests & Notes</label>
       <input id="interests" type="text" placeholder="Interests (comma separated, e.g., museums, hiking)" />
+
       <label style="display:flex;align-items:center;gap:8px">
         <input id="eat_out" type="checkbox" checked /> <span class="muted">Recommend places to eat</span>
       </label>
+
       <button type="submit">✨ Generate Trip & Story</button>
     </form>
 
@@ -55,41 +77,62 @@
     const planTitle = document.getElementById('planTitle');
     const planSummary = document.getElementById('planSummary');
     const chaptersDiv = document.getElementById('chapters');
+    const submitButton = tripForm.querySelector('button[type="submit"]');
+
     let map, markersLayer;
 
     tripForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      submitButton.disabled = true;
+      submitButton.textContent = 'Generating... Please wait!';
+      
+      // Remove any previous theme class
+      document.body.className = '';
+
+      const selectedStyle = document.getElementById('style').value;
+
       const body = {
         origin: document.getElementById('origin').value,
         destination: document.getElementById('destination').value,
         duration_days: parseInt(document.getElementById('duration').value, 10),
         budget: parseFloat(document.getElementById('budget').value),
-        travel_style: document.getElementById('style').value,
+        travel_style: selectedStyle,
         interests: (document.getElementById('interests').value || '').split(',').map(s=>s.trim()).filter(Boolean),
         eat_out: document.getElementById('eat_out').checked
       };
 
-      // POST to backend plan endpoint
-      const res = await fetch('/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify(body)
-      });
+      try {
+        // POST to backend plan endpoint
+        const res = await fetch('/api/plan', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify(body)
+        });
 
-      if (!res.ok) {
-        const err = await res.text();
-        alert('Server error: ' + err);
-        return;
+        if (!res.ok) {
+          const err = await res.text();
+          alert('Server error: ' + err);
+          return;
+        }
+
+        const plan = await res.json();
+        renderPlan(plan);
+      } catch (error) {
+        console.error('Fetch error:', error);
+        alert('An error occurred while fetching the trip plan. Please try again.');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = '✨ Generate Trip & Story';
       }
-
-      const plan = await res.json();
-      renderPlan(plan);
     });
 
     function renderPlan(plan) {
       storySection.style.display = 'block';
       planTitle.textContent = plan.title || `${plan.destination} — Trip`;
       planSummary.textContent = plan.summary || '';
+
+      // Apply the selected theme to the body
+      document.body.className = `theme-${plan.travel_style}`;
 
       // Reset chapters and map
       chaptersDiv.innerHTML = '';
@@ -101,38 +144,72 @@
       markersLayer.clearLayers();
       const allMarkers = [];
 
-      (plan.chapters || []).forEach(ch => {
+      (plan.chapters || []).forEach((ch, index) => {
         const c = document.createElement('div');
         c.className = 'chapter';
         c.innerHTML = `<h3>Day ${ch.day}: ${escapeHtml(ch.title)}</h3>
                        <p class="muted">${escapeHtml(ch.time_window || '')}</p>
                        <p>${escapeHtml(ch.story_paragraph || '')}</p>`;
+        
+        // Add image placeholder and generate image
+        if (ch.story_image_prompt) {
+            // Note: For a true integrated experience, the image generation would happen
+            // either on the backend (then the URL sent to frontend) or via a separate
+            // frontend API call. For this exercise, we are assuming the image model 
+            // will intercept the ` ` tag and generate based on the prompt.
+            // I'm embedding the tag here as per instructions.
+            c.insertAdjacentHTML('beforeend', `
+                <div style="text-align:center; margin-bottom: 1.5rem;">
+                    <p class="muted">A scene from your journey:</p>
+                    <img class="story-image" src="` + `
+                    " alt="${escapeHtml(ch.story_image_prompt)}">
+                </div>
+            `);
+        }
+
         const actsUL = document.createElement('ul');
+        actsUL.className = 'activity-list';
 
         (ch.activities || []).forEach(act => {
           const li = document.createElement('li');
           li.className = 'activity';
-          li.innerHTML = `<div class="flex"><strong>${escapeHtml(act.type)}</strong>
-                          <span class="muted"> — est $${act.estimated_price_usd ?? '—'}</span>
-                          </div>
-                          <div style="margin-top:6px">${escapeHtml(act.description || '')}</div>`;
+          
+          let activityHtml = `<div style="display:flex; justify-content:space-between; align-items: baseline;">
+                                <strong>${escapeHtml(act.type)}</strong>
+                                <div>
+                                    <span class="time-allocation">${escapeHtml(act.time_allocation || '')}</span>
+                                    <span class="muted"> — est $${act.estimated_price_usd !== null && act.estimated_price_usd !== undefined ? act.estimated_price_usd.toFixed(2) : '—'}</span>
+                                </div>
+                              </div>
+                              <div style="margin-top:6px">${escapeHtml(act.description || '')}</div>`;
+          
+          li.innerHTML = activityHtml;
 
           // audio button
           const audioBtn = document.createElement('button');
           audioBtn.className = 'audio-btn';
-          audioBtn.textContent = '🔊 Play narration';
+          audioBtn.innerHTML = '🔊 Play narration'; 
           audioBtn.onclick = () => playChapterAudio(act.description || ch.story_paragraph || plan.summary || 'Story');
           li.appendChild(audioBtn);
 
           if (act.places && act.places.length) {
             const pl = document.createElement('ul');
+            pl.className = 'place-list';
             act.places.forEach(p => {
               const pli = document.createElement('li');
               const name = escapeHtml(p.name || 'Place');
               const addr = escapeHtml(p.address || '');
               const url = p.url || '#';
               const price = escapeHtml(p.price_estimate || '');
-              pli.innerHTML = `<a class="place-link" target="_blank" href="${url}">${name}</a> — ${addr} <span class="muted">(${price})</span>`;
+              const placeDesc = escapeHtml(p.description || '');
+              
+              let menuHtml = '';
+              if (p.menu_items && p.menu_items.length) {
+                menuHtml = `<span class="muted"> (Recommended: ${escapeHtml(p.menu_items.join(', '))})</span>`;
+              }
+
+              pli.innerHTML = `<a class="place-link" target="_blank" href="${url}">${name}</a> — ${addr} <span class="muted">(${price})</span><br>
+                               <span class="muted">${placeDesc}</span>${menuHtml}`;
               pl.appendChild(pli);
 
               if (p.geo && typeof p.geo.lat === 'number' && typeof p.geo.lng === 'number') {
@@ -156,7 +233,7 @@
         const bounds = L.latLngBounds(allMarkers);
         map.fitBounds(bounds.pad(0.15));
       } else {
-        map.setView([20,0], 2);
+        map.setView([20,0], 2); // Default view if no markers
       }
 
       // small helper
@@ -167,14 +244,38 @@
     }
 
     async function playChapterAudio(text) {
-      // request backend TTS endpoint
-      const encoded = encodeURIComponent(text || '');
-      const res = await fetch(`/api/chapter/0/audio?text=${encoded}`);
-      if (!res.ok) { alert('Audio generation failed'); return; }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.play();
+      const audioBtn = event.target; // Get the button that was clicked
+      audioBtn.disabled = true;
+      const originalText = audioBtn.innerHTML;
+      audioBtn.innerHTML = 'Buffering...';
+
+      try {
+        const encoded = encodeURIComponent(text || '');
+        const res = await fetch(`/api/chapter/0/audio?text=${encoded}`);
+        if (!res.ok) { 
+            alert('Audio generation failed'); 
+            return; 
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.onended = () => {
+            URL.revokeObjectURL(url); // Clean up memory
+            audioBtn.innerHTML = originalText;
+            audioBtn.disabled = false;
+        };
+        audio.play();
+        audioBtn.innerHTML = '🔊 Playing...'; // Update text while playing
+
+      } catch (error) {
+        console.error('Audio playback error:', error);
+        alert('An error occurred during audio playback.');
+      } finally {
+        if (audioBtn.disabled) { // If audio didn't start or ended with error, re-enable
+            audioBtn.innerHTML = originalText;
+            audioBtn.disabled = false;
+        }
+      }
     }
   </script>
 </body>
