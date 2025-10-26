@@ -1,0 +1,270 @@
+/* ======= GENERAL STYLING ======= */
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  color: #f5f3ff;
+  background: linear-gradient(135deg, #2a0b56, #43126b, #5e1791);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ======= HEADER ======= */
+header {
+  text-align: center;
+  margin-top: 3rem;
+  color: #ffd700;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  color: #d5c7ff;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ======= MAIN CONTAINER ======= */
+main {
+  background: rgba(20, 10, 40, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  margin-top: 2rem;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+/* ======= FORM STYLING ======= */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input,
+select,
+textarea {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f3ff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b9aaff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+/* ======= CHECKBOX LINE ======= */
+label {
+  font-size: 0.95rem;
+  color: #d5c7ff;
+}
+
+/* ======= BUTTON ======= */
+button {
+  background: linear-gradient(90deg, #ffd700, #ffb100);
+  border: none;
+  border-radius: 10px;
+  color: #3a1f00;
+  font-weight: 600;
+  padding: 0.9rem;
+  cursor: pointer;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #ffb100, #ffd700);
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
+
+/* ======= STORY SECTION ======= */
+#storySection {
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+h2 {
+  color: #ffd700;
+  text-align: center;
+}
+
+h3 {
+  color: #ffdf80;
+}
+
+.muted {
+  color: #cfc6ff;
+}
+
+/* ======= CHAPTERS ======= */
+.chapter {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activity {
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+/* ======= AUDIO BUTTON ======= */
+.audio-btn {
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  margin-top: 6px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.audio-btn:hover {
+  background: #a78bfa;
+}
+
+/* ======= MAP ======= */
+#map {
+  height: 400px;
+  border-radius: 10px;
+  margin-top: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ======= LINKS ======= */
+a.place-link {
+  color: #ffd700;
+  text-decoration: none;
+}
+
+a.place-link:hover {
+  text-decoration: underline;
+}
+
+
+/* ======= THEME BUTTONS ======= */
+
+#style{
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  height: 300px;
+
+}
+#style::-moz-focus-inner {
+  border: 0;
+}
+#style:focus {
+  outline: none;
+}
+#style option{
+background: rgba(255, 255, 255, 0.08);  
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  border-radius: 10px;
+  color: #f5f3ff;
+  font-weight: 600;
+  padding: 0.9rem;
+  cursor: pointer;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  margin: 5px
+  
+}
+#style option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #ffd700;
+
+}
+
+#style option.selected {
+  background: linear-gradient(90deg, #ffd700, #ffb100) !important;
+  color: #2a0b56;
+  font-weight: 600;
+    background: linear-gradient(90deg, #ffb100, #ffd700);
+
+}
+
+
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.theme-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 0.7rem 0;
+  color: #f5f3ff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #ffd700;
+}
+
+.theme-btn.selected {
+  background: linear-gradient(90deg, #ffd700, #ffb100);
+  color: #2a0b56;
+  font-weight: 600;
+}
+
+/* ======= INLINE FIELDS ======= */
+.inline-fields {
+  display: flex;
+  gap: 1rem;
+}
+
+.inline-fields > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+

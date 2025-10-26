@@ -3,45 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TripStoryer</title>
+  <title>Narrative-Nomad</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background-color:#f3f4f6; margin:0; color:#333; }
-    header { background:#1e40af; color:white; text-align:center; padding:1.25rem 1rem; }
-    main { max-width:1100px; margin:1.5rem auto; background:white; padding:1.5rem; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.08) }
-    form { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:1rem }
-    input, select, button, textarea { padding:10px; border-radius:6px; border:1px solid #d1d5db; font-size:1rem }
-    button { background:#2563eb; color:white; border:none; cursor:pointer; transition:background .18s }
-    button:hover{ background:#1d4ed8 }
-    h2,h3 { color:#1e3a8a }
-    .chapter { border:1px solid #e5e7eb; padding:12px; border-radius:8px; background:#fbfdff; margin-bottom:12px }
-    .chapter ul { list-style:none; padding-left:0; margin:8px 0 0 0 }
-    .activity { margin:8px 0; padding:8px; border-radius:6px; background:#ffffff }
-    .audio-btn { background:#10b981; color:white; border:none; padding:6px 8px; border-radius:6px; cursor:pointer; margin-left:8px }
-    #map { height:420px; border-radius:8px; margin-top:1rem; }
-    .muted { color:#6b7280; font-size:0.95rem }
-    a.place-link { color:#2563eb; text-decoration:none }
-    .flex { display:flex; gap:8px; align-items:center }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>🌍 TripStoryer</h1>
+    <h1>🌍 Narrative-Nomad</h1>
     <p class="muted">AI-driven itineraries + immersive stories — powered by Gemini & ElevenLabs</p>
   </header>
 
   <main>
     <form id="tripForm">
+      <label for="destination" class="muted">Your Origin</label>
       <input id="origin" type="text" placeholder="Origin (e.g., Toronto)" required />
+      <label for="destination" class="muted">Your Destination</label>
       <input id="destination" type="text" placeholder="Destination (e.g., Kyoto)" required />
+      <label class="muted">Trip Duration</label>
       <input id="duration" type="number" placeholder="Duration (days)" min="1" required />
+      <label class="muted">Budget</label>
       <input id="budget" type="number" placeholder="Budget (USD)" min="1" required />
-      <select id="style">
-        <option value="romantic">Romantic</option>
-        <option value="fantasy">Fantasy</option>
-        <option value="spooky">Spooky</option>
-        <option value="adventure">Adventure</option>
+      <label class="muted">Choose Your Story's Theme</label>
+      <select id="style" multiple="multiple">
+        <option class="muted" value="romantic">Romantic 💖</option>
+        <option class="muted" value="fantasy">Fantasy ✨</option>
+        <option class="muted" value="spooky">Spooky 💀</option>
+        <option class="muted" value="adventure">Adventure 🗺️</option>
       </select>
+      <label class="muted">Interests & Notes</label>
       <input id="interests" type="text" placeholder="Interests (comma separated, e.g., museums, hiking)" />
       <label style="display:flex;align-items:center;gap:8px">
         <input id="eat_out" type="checkbox" checked /> <span class="muted">Recommend places to eat</span>
