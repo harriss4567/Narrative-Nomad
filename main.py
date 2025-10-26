@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from gemini_story import GeminiClient
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
@@ -31,13 +31,23 @@ class TripRequest(BaseModel):
 
 @app.post("/api/plan")
 async def create_plan(request: TripRequest):
-    # TODO: generate a trip plan here
-    return {
-        "title": f"Trip to {request.destination}",
-        "summary": f"A {request.travel_style} trip from {request.origin} to {request.destination}.",
-        "destination": request.destination,
-        "chapters": []
-    }
+    try:
+        # Call the Gemini client to generate the structured itinerary
+        plan_data = client.generate_structured_itinerary(
+            origin=request.origin,
+            destination=request.destination,
+            duration_days=request.duration_days,
+            budget=request.budget,
+            travel_style=request.travel_style,
+            interests=request.interests,
+            eat_out=request.eat_out
+        )
+        return JSONResponse(content=plan_data)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Error in create_plan: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @app.get("/api/chapter/{chapter_idx}/audio")
 async def chapter_audio(chapter_idx: int, text: str = ""):
