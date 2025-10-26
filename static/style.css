@@ -176,6 +176,55 @@ a.place-link:hover {
 
 
 /* ======= THEME BUTTONS ======= */
+
+#style{
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  height 300px;
+}
+#style::-moz-focus-inner {
+  border: 0;
+}
+#style:focus {
+  outline: none;
+}
+#style option{
+background: rgba(255, 255, 255, 0.08);  
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  border-radius: 10px;
+  color: #f5f3ff;
+  font-weight: 600;
+  padding: 0.9rem;
+  cursor: pointer;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  margin: 5px
+  
+}
+#style option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #ffd700;
+
+}
+
+#style option.selected {
+  background: linear-gradient(90deg, #ffd700, #ffb100) !important;
+  color: #2a0b56;
+  font-weight: 600;
+    background: linear-gradient(90deg, #ffb100, #ffd700);
+
+}
+
+
+
 .theme-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -216,3 +265,5 @@ a.place-link:hover {
   display: flex;
   flex-direction: column;
 }
+
+

@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TripStoryer</title>
+  <title>Narrative-Nomad</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>🌍 TripStoryer</h1>
+    <h1>🌍 Narrative-Nomad</h1>
     <p class="muted">AI-driven itineraries + immersive stories — powered by Gemini & ElevenLabs</p>
   </header>
 
@@ -24,11 +24,11 @@
       <label class="muted">Budget</label>
       <input id="budget" type="number" placeholder="Budget (USD)" min="1" required />
       <label class="muted">Choose Your Story's Theme</label>
-      <select id="style">
-        <option value="romantic">Romantic</option>
-        <option value="fantasy">Fantasy</option>
-        <option value="spooky">Spooky</option>
-        <option value="adventure">Adventure</option>
+      <select id="style" multiple="multiple">
+        <option class="muted" value="romantic">Romantic 💖</option>
+        <option class="muted" value="fantasy">Fantasy ✨</option>
+        <option class="muted" value="spooky">Spooky 💀</option>
+        <option class="muted" value="adventure">Adventure 🗺️</option>
       </select>
       <label class="muted">Interests & Notes</label>
       <input id="interests" type="text" placeholder="Interests (comma separated, e.g., museums, hiking)" />
