@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 from gemini_story import GeminiClient
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from pathlib import Path
+from eleven_labs_audio import generate_narration 
 
 app = FastAPI()
 client = GeminiClient()
@@ -37,3 +38,16 @@ async def create_plan(request: TripRequest):
         "destination": request.destination,
         "chapters": []
     }
+
+@app.get("/api/chapter/{chapter_idx}/audio")
+async def chapter_audio(chapter_idx: int, text: str = ""):
+    if not text:
+        raise HTTPException(status_code=400, detail="No text provided for narration")
+
+    try:
+        audio_bytes = generate_narration(text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"ElevenLabs error: {e}")
+
+    # Return audio to frontend
+    return StreamingResponse(audio_bytes, media_type="audio/mpeg")
