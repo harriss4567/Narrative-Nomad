@@ -15,16 +15,22 @@
 
   <main>
     <form id="tripForm">
+      <label for="destination" class="muted">Your Origin</label>
       <input id="origin" type="text" placeholder="Origin (e.g., Toronto)" required />
+      <label for="destination" class="muted">Your Destination</label>
       <input id="destination" type="text" placeholder="Destination (e.g., Kyoto)" required />
+      <label class="muted">Trip Duration</label>
       <input id="duration" type="number" placeholder="Duration (days)" min="1" required />
+      <label class="muted">Budget</label>
       <input id="budget" type="number" placeholder="Budget (USD)" min="1" required />
+      <label class="muted">Choose Your Story's Theme</label>
       <select id="style">
         <option value="romantic">Romantic</option>
         <option value="fantasy">Fantasy</option>
         <option value="spooky">Spooky</option>
         <option value="adventure">Adventure</option>
       </select>
+      <label class="muted">Interests & Notes</label>
       <input id="interests" type="text" placeholder="Interests (comma separated, e.g., museums, hiking)" />
       <label style="display:flex;align-items:center;gap:8px">
         <input id="eat_out" type="checkbox" checked /> <span class="muted">Recommend places to eat</span>
