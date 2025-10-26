@@ -1,192 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TripStoryer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Narrative Nomad</title>
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background-color:#f3f4f6; margin:0; color:#333; }
-    header { background:#1e40af; color:white; text-align:center; padding:1.25rem 1rem; }
-    main { max-width:1100px; margin:1.5rem auto; background:white; padding:1.5rem; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,0.08) }
-    form { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:1rem }
-    input, select, button, textarea { padding:10px; border-radius:6px; border:1px solid #d1d5db; font-size:1rem }
-    button { background:#2563eb; color:white; border:none; cursor:pointer; transition:background .18s }
-    button:hover{ background:#1d4ed8 }
-    h2,h3 { color:#1e3a8a }
-    .chapter { border:1px solid #e5e7eb; padding:12px; border-radius:8px; background:#fbfdff; margin-bottom:12px }
-    .chapter ul { list-style:none; padding-left:0; margin:8px 0 0 0 }
-    .activity { margin:8px 0; padding:8px; border-radius:6px; background:#ffffff }
-    .audio-btn { background:#10b981; color:white; border:none; padding:6px 8px; border-radius:6px; cursor:pointer; margin-left:8px }
-    #map { height:420px; border-radius:8px; margin-top:1rem; }
-    .muted { color:#6b7280; font-size:0.95rem }
-    a.place-link { color:#2563eb; text-decoration:none }
-    .flex { display:flex; gap:8px; align-items:center }
-  </style>
 </head>
 <body>
   <header>
-    <h1>🌍 TripStoryer</h1>
-    <p class="muted">AI-driven itineraries + immersive stories — powered by Gemini & ElevenLabs</p>
+    <h1>NARRATIVE NOMAD</h1>
+    <p>Your next journey is a story waiting to be written.</p>
   </header>
 
   <main>
     <form id="tripForm">
-      <input id="origin" type="text" placeholder="Origin (e.g., Toronto)" required />
-      <input id="destination" type="text" placeholder="Destination (e.g., Kyoto)" required />
-      <input id="duration" type="number" placeholder="Duration (days)" min="1" required />
-      <input id="budget" type="number" placeholder="Budget (USD)" min="1" required />
-      <select id="style">
-        <option value="romantic">Romantic</option>
-        <option value="fantasy">Fantasy</option>
-        <option value="spooky">Spooky</option>
-        <option value="adventure">Adventure</option>
-      </select>
-      <input id="interests" type="text" placeholder="Interests (comma separated, e.g., museums, hiking)" />
+      <label for="destination" class="muted">Your Destination</label>
+      <input id="destination" type="text" placeholder="e.g., New Orleans, Tokyo" required>
+
+      <label class="muted">Choose Your Story's Theme</label>
+      <div class="theme-grid">
+        <button type="button" class="theme-btn" data-style="fantasy">✨ Fantasy</button>
+        <button type="button" class="theme-btn" data-style="spooky">💀 Spooky</button>
+        <button type="button" class="theme-btn" data-style="romantic">💖 Romance</button>
+        <button type="button" class="theme-btn" data-style="adventure">🗺️ Adventure</button>
+        <button type="button" class="theme-btn" data-style="mystery">🕵️ Mystery</button>
+        <button type="button" class="theme-btn" data-style="historical">🏛️ Historical</button>
+        <button type="button" class="theme-btn" data-style="sci-fi">🚀 Sci-Fi</button>
+      </div>
+      <input id="style" type="hidden" value="fantasy">
+
+      <div class="inline-fields">
+        <div>
+          <label class="muted">Trip Duration</label>
+          <input id="duration" type="text" placeholder="e.g., 3 days" required>
+        </div>
+        <div>
+          <label class="muted">Budget</label>
+          <input id="budget" type="text" placeholder="e.g., Moderate" required>
+        </div>
+      </div>
+
+      <label class="muted">Interests & Notes</label>
+      <textarea id="interests" placeholder="e.g., love historical sites, vegetarian"></textarea>
+
       <label style="display:flex;align-items:center;gap:8px">
-        <input id="eat_out" type="checkbox" checked /> <span class="muted">Recommend places to eat</span>
+        <input id="eat_out" type="checkbox" checked>
+        <span class="muted">Recommend places to eat</span>
       </label>
-      <button type="submit">✨ Generate Trip & Story</button>
+
+      <button type="submit">Begin Your Adventure</button>
     </form>
 
     <section id="storySection" style="display:none;">
       <h2 id="planTitle"></h2>
       <p id="planSummary" class="muted"></p>
-
       <div id="chapters"></div>
-
       <div id="map"></div>
     </section>
   </main>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    const tripForm = document.getElementById('tripForm');
-    const storySection = document.getElementById('storySection');
-    const planTitle = document.getElementById('planTitle');
-    const planSummary = document.getElementById('planSummary');
-    const chaptersDiv = document.getElementById('chapters');
-    let map, markersLayer;
-
-    tripForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const body = {
-        origin: document.getElementById('origin').value,
-        destination: document.getElementById('destination').value,
-        duration_days: parseInt(document.getElementById('duration').value, 10),
-        budget: parseFloat(document.getElementById('budget').value),
-        travel_style: document.getElementById('style').value,
-        interests: (document.getElementById('interests').value || '').split(',').map(s=>s.trim()).filter(Boolean),
-        eat_out: document.getElementById('eat_out').checked
-      };
-
-      // POST to backend plan endpoint
-      const res = await fetch('/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      if (!res.ok) {
-        const err = await res.text();
-        alert('Server error: ' + err);
-        return;
-      }
-
-      const plan = await res.json();
-      renderPlan(plan);
-    });
-
-    function renderPlan(plan) {
-      storySection.style.display = 'block';
-      planTitle.textContent = plan.title || `${plan.destination} — Trip`;
-      planSummary.textContent = plan.summary || '';
-
-      // Reset chapters and map
-      chaptersDiv.innerHTML = '';
-      if (!map) {
-        map = L.map('map', { scrollWheelZoom: false }).setView([20,0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-        markersLayer = L.layerGroup().addTo(map);
-      }
-      markersLayer.clearLayers();
-      const allMarkers = [];
-
-      (plan.chapters || []).forEach(ch => {
-        const c = document.createElement('div');
-        c.className = 'chapter';
-        c.innerHTML = `<h3>Day ${ch.day}: ${escapeHtml(ch.title)}</h3>
-                       <p class="muted">${escapeHtml(ch.time_window || '')}</p>
-                       <p>${escapeHtml(ch.story_paragraph || '')}</p>`;
-        const actsUL = document.createElement('ul');
-
-        (ch.activities || []).forEach(act => {
-          const li = document.createElement('li');
-          li.className = 'activity';
-          li.innerHTML = `<div class="flex"><strong>${escapeHtml(act.type)}</strong>
-                          <span class="muted"> — est $${act.estimated_price_usd ?? '—'}</span>
-                          </div>
-                          <div style="margin-top:6px">${escapeHtml(act.description || '')}</div>`;
-
-          // audio button
-          const audioBtn = document.createElement('button');
-          audioBtn.className = 'audio-btn';
-          audioBtn.textContent = '🔊 Play narration';
-          audioBtn.onclick = () => playChapterAudio(act.description || ch.story_paragraph || plan.summary || 'Story');
-          li.appendChild(audioBtn);
-
-          if (act.places && act.places.length) {
-            const pl = document.createElement('ul');
-            act.places.forEach(p => {
-              const pli = document.createElement('li');
-              const name = escapeHtml(p.name || 'Place');
-              const addr = escapeHtml(p.address || '');
-              const url = p.url || '#';
-              const price = escapeHtml(p.price_estimate || '');
-              pli.innerHTML = `<a class="place-link" target="_blank" href="${url}">${name}</a> — ${addr} <span class="muted">(${price})</span>`;
-              pl.appendChild(pli);
-
-              if (p.geo && typeof p.geo.lat === 'number' && typeof p.geo.lng === 'number') {
-                const marker = L.marker([p.geo.lat, p.geo.lng]);
-                marker.bindPopup(`<b>${name}</b><br>${addr}`);
-                markersLayer.addLayer(marker);
-                allMarkers.push([p.geo.lat, p.geo.lng]);
-              }
-            });
-            li.appendChild(pl);
-          }
-
-          actsUL.appendChild(li);
-        });
-
-        c.appendChild(actsUL);
-        chaptersDiv.appendChild(c);
-      });
-
-      if (allMarkers.length) {
-        const bounds = L.latLngBounds(allMarkers);
-        map.fitBounds(bounds.pad(0.15));
-      } else {
-        map.setView([20,0], 2);
-      }
-
-      // small helper
-      function escapeHtml(s) {
-        if (!s) return '';
-        return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]) });
-      }
-    }
-
-    async function playChapterAudio(text) {
-      // request backend TTS endpoint
-      const encoded = encodeURIComponent(text || '');
-      const res = await fetch(`/api/chapter/0/audio?text=${encoded}`);
-      if (!res.ok) { alert('Audio generation failed'); return; }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.play();
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
