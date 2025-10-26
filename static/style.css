@@ -183,7 +183,8 @@ a.place-link:hover {
   padding: 1.5rem;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  height 300px;
+  height: 300px;
+
 }
 #style::-moz-focus-inner {
   border: 0;
